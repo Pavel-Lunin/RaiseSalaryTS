@@ -12,8 +12,6 @@ import {name as appName} from './app.json';
 
 const state = store.getState();
 
-console.log(state);
-
 const MainApp = () => (
   <Provider store={store}>
     <App />

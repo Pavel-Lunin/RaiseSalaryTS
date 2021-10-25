@@ -1,56 +1,20 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React, {useEffect, useState} from 'react';
-import {
-  Button,
-  SafeAreaView,
-  StyleSheet,
-  FlatList,
-  Text,
-  View,
-} from 'react-native';
+import {Button, SafeAreaView, FlatList} from 'react-native';
 
-import axios from 'react-native-axios';
-import {useDispatch} from 'react-redux';
+import {getData, VacanciesTypes} from './src/api/api';
+import VacancyItem from './src/elements/vacancy-item/vacancy-item';
 
-import {setVacancy} from './src/redux/actions/vacancy';
+const App: React.FC = () => {
+  const [vacancies, setVacancies] = useState<Array<VacanciesTypes>>([]);
 
-//type itemType = {
-
-//}
-
-const App = () => {
-  const [vacancies, setVacancies] = useState({});
   const [togl, setTogl] = useState(false);
 
-  console.log(vacancies);
-  const dispatch = useDispatch();
-
-  dispatch(setVacancy('ggg'));
-  //не подсвечивает TS
-
   useEffect(() => {
-    const getData = async () => {
-      await axios
-        .get('https://api.zp.ru/v1/vacancies')
-        .then(response => setVacancies(response.data.vacancies));
-    };
-
-    getData();
+    getData(setVacancies);
   }, [togl]);
 
-  const renderItem = ({item}: any) => {
-    return (
-      <View style={styles.container}>
-        <Text>{item.header}</Text>
-      </View>
-    );
+  const renderItem = ({item}: {item: VacanciesTypes}) => {
+    return <VacancyItem item={item} />;
   };
 
   return (
@@ -60,17 +24,5 @@ const App = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    borderColor: '#000',
-    borderWidth: 2,
-    marginHorizontal: 16,
-    marginVertical: 3,
-    borderRadius: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default App;
