@@ -1,28 +1,55 @@
-import React, {useEffect, useState} from 'react';
-import {Button, SafeAreaView, FlatList} from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { SafeAreaView, FlatList } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 
-import {getData, VacanciesTypes} from './src/api/api';
+import { ToastType, useToast } from 'react-native-toast-notifications';
+import { getData, VacanciesTypes } from './src/redux/actions/vacancy';
+
 import VacancyItem from './src/elements/vacancy-item/vacancy-item';
+import Loader from './src/elements/loader/loader';
+import { AppStateType } from './src/redux/reducers';
 
 const App: React.FC = () => {
-  const [vacancies, setVacancies] = useState<Array<VacanciesTypes>>([]);
+    const { favoriteVacancy, vacancies, isLoading } = useSelector((state: AppStateType) => ({
+        favoriteVacancy: state.favorite,
+        vacancies: state.vacancy.vacancy,
+        isLoading: state.vacancy.isLoading
+    }));
 
-  const [togl, setTogl] = useState(false);
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    getData(setVacancies);
-  }, [togl]);
+    const toast: ToastType = useToast();
 
-  const renderItem = ({item}: {item: VacanciesTypes}) => {
-    return <VacancyItem item={item} />;
-  };
+    useEffect(() => {
+        getData()(dispatch)
+            .then(() => {
+                toast.show('Успешно загружено');
+            })
+            .catch(() => {
+                toast.show('Ошибка');
+            });
+    }, [dispatch, toast]);
 
-  return (
-    <SafeAreaView>
-      <FlatList data={vacancies} renderItem={renderItem} />
-      <Button title="press" onPress={() => setTogl(!togl)} />
-    </SafeAreaView>
-  );
+    const renderItem = useCallback(
+        ({ item }: { item: VacanciesTypes }) => {
+            return <VacancyItem item={item} favoriteVacancy={favoriteVacancy} />;
+        },
+        [favoriteVacancy]
+    );
+
+    const vacancyList = () => (
+        <SafeAreaView
+            style={{
+                flex: 1
+            }}
+        >
+            <FlatList data={vacancies} renderItem={renderItem} />
+        </SafeAreaView>
+    );
+
+    const content = !isLoading ? vacancyList() : <Loader />;
+
+    return content;
 };
 
 export default App;

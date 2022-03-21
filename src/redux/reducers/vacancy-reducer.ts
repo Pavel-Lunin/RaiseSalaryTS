@@ -1,22 +1,30 @@
-import type {ActionVacancy} from './../actions/vacancy';
+import { ActionVacancy, VACANCY } from './../actions/vacancy';
+import type { VacancyType } from '../../redux/actions/vacancy';
 
-import {SET_VACANCY, ADD_FAVOURITE_VACANCY} from './../actions/vacancy';
-
-const initialState = {
-  vacancy: {},
-  favoriteVacancy: {},
+type State = {
+    vacancy: Array<VacancyType>;
+    isLoading: boolean;
 };
 
-const vacancyReducer = (state = initialState, action: ActionVacancy) => {
-  switch (action.type) {
-    case SET_VACANCY: {
-      return {...state, vacancy: action.vacancy};
-    }
-    case ADD_FAVOURITE_VACANCY: {
-      return {...state.favoriteVacancy, ...action.payload.id};
-    }
-    default:
-      return state;
-  }
+const initialState: State = {
+    vacancy: [],
+    isLoading: false,
 };
+
+const vacancyReducer = (state: State = initialState, action: ActionVacancy) => {
+    switch (action.type) {
+        case VACANCY.FETCH_VACANCY: {
+            return { ...state, isLoading: true };
+        }
+        case VACANCY.FETCH_VACANCY_SUCCESS: {
+            return { ...state, vacancy: action.vacancy, isLoading: false };
+        }
+        case VACANCY.ERROR_FETCH_VACANCIES: {
+            return { ...state, isLoading: false };
+        }
+        default:
+            return state;
+    }
+};
+
 export default vacancyReducer;
